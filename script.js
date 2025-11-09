@@ -56,8 +56,11 @@ function createFileTabs() {
         fileTabsEl.appendChild(tab);
     });
 
-    // отображаем первый файл по умолчанию
-    if (Object.keys(FILES).length > 0) {
+    // отображаем первый файл по умолчанию либо файл из URL
+    const urlTarget = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+    if (urlTarget in FILES) {
+        displayFileContent(urlTarget);
+    } else if (Object.keys(FILES).length > 0) {
         displayFileContent(Object.keys(FILES)[0]);
     }
 }
