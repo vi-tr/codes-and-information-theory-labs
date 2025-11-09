@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Онлайн интерпретатор J скриптов</title>
+    <script>
+        // Этот патч перехватывает вызовы XMLHttpRequest.
+        // Он перенаправляет запросы к emj.data на внешний внешний ресурс.
+        // Такой подход позволяет:
+        // 1. Уменьшить размер локального проекта, не включая emj.data.
+        // 2. Избежать проблему с политикой CORS при получении emj.data с
+        //    локального сервера.
+        (function() {
+            const origOpen = XMLHttpRequest.prototype.open;
+            XMLHttpRequest.prototype.open = function(method, url) {
+                this._url = url;
+                return origOpen.apply(this, arguments);
+            };
+            const origSend = XMLHttpRequest.prototype.send;
+            XMLHttpRequest.prototype.send = function(body) {
+                try {
+                    if (this._url && this._url.includes('emj.data')) {
+                        arguments[0] = undefined;
+                        const newUrl = 'https://jsoftware.github.io/j-playground/bin/html2/emj.data';
+                        this.open('GET', newUrl, true);
+                    }
+                } catch (e) {
+                    // Подавляем ошибки самого патча, чтобы не нарушать нормальную работу
+                }
+                return origSend.apply(this, arguments);
+            };
+        })();
+    </script>
+    <script src="https://jsoftware.github.io/j-playground/bin/html2/emj.js"></script>
+    <script>
+        // Привязываем функцию 'em_jdo' из C API Emscripten.
+        var jdo1 = Module.cwrap('em_jdo', 'string', ['string']);
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism-coy.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="wrap">
+        <header>
+            <h1>Онлайн интерпретатор для лабораторных</h1>
+            <p class="lead">Выбирайте одну из нескольких моих лабораторных, вводите количество сообщений и испытаний, и далее запускаете код кнопкой "Запустить программу". Результат и код можно скачать. Программы работают значительно медленнее чем они бы работали оффлайн т. к. идёт эмуляция через Javascript.</p>
+        </header>
+        <div class="grid">
+            <div class="card">
+                <div id="file-tabs" class="file-tabs"></div>
+                <div id="file-description" class="file-description"></div>
+                <label for="file-content-wrapper">Исходный код:</label>
+                <div id="file-content-wrapper">
+                    <pre><code id="file-content" class="language-j"></code></pre>
+                </div>
+            </div>
+            <div class="card controls">
+                <div class="num">
+                    <label for="msgAmount">Количество возможных сообщений</label>
+                    <input id="msgAmount" type="number" value="24" />
+                </div>
+                <div class="num">
+                    <label for="trials">Количество испытаний</label>
+                    <input id="trials" type="number" value="6" />
+                </div>
+                <button class="action" id="run" title="Execute">Запустить программу</button>
+                <button class="action" id="download-source" title="Download source code">Скачать исходный код</button>
+                <button class="action" id="download-output" title="Download output" hidden>Скачать результат</button>
+            </div>
+        </div>
+        <label for="output">Вывод программы:</label>
+        <div class="output" id="output">
+            <div class="throbber" id="code-throbber" hidden></div>
+            <div id="output-content"></div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
