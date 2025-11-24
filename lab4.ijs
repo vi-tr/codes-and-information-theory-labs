@@ -26,9 +26,12 @@ NB. Берёт проверочную подматрицу и закодиров
 NB. синдром ошибки (H_p u msg)
 syndrome=: ({.~ data_length - #)@] ~: (|:@[ code data_length&{.@])
 
+NB. polyfill
+flip=: {{ (-.u{y) u} y }}
+
 NB. Берёт проверочную подматрицу и закодированное сообщение и исправляет
 NB. ошибку в сообщении (H u msg)
-fix=: {{ -.&.(idx&{)^:((#y) > idx=. (correct x) i. x syndrome y) y }}
+fix=: {{ (idx)flip^:((#y) > idx=. (correct x) i. x syndrome y) y }}
 
 NB. --------------
 
@@ -48,7 +51,7 @@ trial =: monad : 0
     print ' ...Отправляем сообщение...'
     faulty=. encoded
     if. ?1+#encoded do.
-        faulty=. -.&.((?#encoded)&{) faulty
+        faulty =. (?#encoded)flip faulty
         print '  Ошибка: бит ',' поменял значение',~ ": 1+I. faulty~:encoded
     else.
         print '  Ошибки не произошло'
