@@ -18,9 +18,12 @@ const FILES = {
     'lab1.ijs': 'Лабораторная работа №1: «Количество информации и неопределенность сообщения»',
     'lab2.ijs': 'Лабораторная работа №2: «Количество информации при неполной достоверности сообщений»',
     'lab3.ijs': 'Лабораторная работа №3: «Обобщенные характеристики сигналов и каналов»',
+    'lab4.ijs': 'Лабораторная работа №4: «Систематический код»',
 };
 
 async function displayFileContent(filePath) {
+    const label = document.querySelector(`label[for="msgAmount"]`);
+    label.textContent = filePath === 'lab4.ijs' ? 'Количество информационных разрядов' : 'Количество возможных сообщений';
     try {
         const response = await fetch(filePath);
         if (!response.ok) {
@@ -112,8 +115,14 @@ runBtn.addEventListener('click', function() {
     // (показать индикатор загрузки и очистить вывод) до начала выполнения кода.
     setTimeout(() => {
         try {
+            const activeTab = document.querySelector('.file-tab.active');
+            const filename = activeTab ? activeTab.dataset.path : 'lab1.ijs';
             // валидируем и устанавливаем значения переменных 'amount' и 'trials' в J окружении
-            jdo1(`amount =: ${validate_int(amount)}`);
+            if (filename === 'lab4.ijs') {
+                jdo1(`data_length =: ${validate_int(amount)}`);
+            } else {
+                jdo1(`amount =: ${validate_int(amount)}`);
+            }
             jdo1(`trials =: ${validate_int(trials)}`);
 
             // записываем исходный код программы во временный файл в виртуальной файловой системе
