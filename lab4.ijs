@@ -37,8 +37,10 @@ NB. --------------
 
 print 'Количество информационных разрядов: ', ": data_length
 print 'Количество проверочных разрядов: ', ": p data_length
+print 'Производящая матрица:'
+stdout ,LF,.~' ',"(1) ": (=i.data_length) ,. H=: data_length {. (d_min-1) H_p p data_length
 print 'Проверочная матрица (отправитель и получатель её вычисляют самостоятельно):'
-stdout ,LF,.~' ',"(1) ": correct H=: data_length {. (d_min-1) H_p p data_length
+stdout ,LF,.~' ',"(1) ": correct H
 
 NB. Одно испытание
 trial =: monad : 0
